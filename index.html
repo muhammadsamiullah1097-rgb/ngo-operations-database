@@ -114,6 +114,13 @@ footer{padding:20px 14px;text-align:center;color:var(--muted);font-size:14px}
 .loading{text-align:center;padding:40px 10px;color:var(--muted);font-size:18px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (min-width:640px){ .needs{grid-template-columns:repeat(3,1fr)} .kpis{grid-template-columns:repeat(4,1fr)} }
+  .story{border-left:5px solid #2c5f46;text-align:left}
+  .story .kicker{font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#2c5f46;margin:0 0 .3rem}
+  .story h2{margin:.1rem 0 .8rem;font-size:1.3rem}
+  .story-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:.6rem 0}
+  .story-grid h3{margin:.2rem 0 .4rem;font-size:1rem}
+  .story-grid p{margin:0;font-size:.95rem;opacity:.92}
+  .story-gap{background:rgba(44,95,70,.12);border-radius:10px;padding:.8rem 1rem;font-size:.95rem;margin:.8rem 0 0}
 </style>
 </head>
 <body>
@@ -123,9 +130,35 @@ footer{padding:20px 14px;text-align:center;color:var(--muted);font-size:14px}
     <h1>🤝 Madad <span class="urdu">(مدد)</span><br>NGO Operations Database</h1>
     <p>Real humanitarian work in Pakistan — who is helping, where, and with what.
        Pick your district and your need. Simple words, real data.</p>
-    <span class="snapshot" id="snapshotBadge">Loading data…</span>
+    <span class="snapshot" id="snapshotBadge">📦 Loading real relief data…</span>
   </div>
 </header>
+
+<div class="wrap">
+<section class="card story" aria-label="Why Madad exists">
+  <p class="kicker">Why Madad exists — read this first</p>
+  <h2>After a flood, two questions matter: <em>who needs help — and who is helping?</em></h2>
+  <div class="story-grid">
+    <div>
+      <h3>🧩 The problem</h3>
+      <p>When floods hit, affected families don't know which organisation works in their district — and coordinators can't see which districts nobody covers. The real data exists, but it lives in spreadsheets made for specialists.</p>
+    </div>
+    <div>
+      <h3>👥 Who it's for</h3>
+      <p><strong>Citizens</strong> looking for help after a disaster, and <strong>NGO / government coordinators</strong> deciding where to send teams next.</p>
+    </div>
+    <div>
+      <h3>🛠️ What you can do here</h3>
+      <p><strong>Find Help:</strong> pick your district and your need — water, shelter, food, health — and get real organisations. <strong>Coordinator:</strong> see coverage gaps district by district, filter by sector, export CSV.</p>
+    </div>
+    <div>
+      <h3>🎁 What you walk away with</h3>
+      <p><strong>152 real organisations</strong> across <strong>150 districts</strong> and 12 sectors — plus a live gap analysis. Example: 83 districts have zero recorded WASH actors. Now you know where to go.</p>
+    </div>
+  </div>
+  <p class="story-gap"><strong>Why it's different:</strong> humanitarian portals are built for analysts. Nothing puts this data in a citizen's hands in simple words — with spelling-tolerant search, so a misspelled district still finds help.</p>
+</section>
+</div>
 
 <nav class="tabs" aria-label="Views">
   <div class="row" role="tablist">
@@ -222,7 +255,7 @@ footer{padding:20px 14px;text-align:center;color:var(--muted);font-size:14px}
     <dt>Downloaded</dt><dd id="srcDl">—</dd>
     <dt>Size</dt><dd id="srcRows">—</dd>
   </dl>
-  <div class="warn" id="srcNote">⚠️ <b>Data snapshot — not live.</b> The operational picture changes daily.
+  <div class="warn" id="srcNote">⚠️ <b>Frozen copy:</b> real relief data saved on the snapshot date above — the real situation changes daily, this copy doesn't.
     Records are self-reported by organizations through humanitarian clusters; gaps may reflect
     under-reporting, not absence of need. Always confirm with local authorities before acting.</div>
 </div>
@@ -296,7 +329,7 @@ fetch("data/data.json").then(r=>{
 
 function initApp(){
   const m = DB.meta;
-  $("snapshotBadge").textContent = "📦 Data snapshot · "+m.snapshot_date+" · OCHA Pakistan via HDX — not live";
+  $("snapshotBadge").textContent = "📦 Real relief data · copy from "+m.snapshot_date+" — the real situation changes daily, this copy doesn't";
   $("srcTitle").textContent = m.dataset_title;
   $("srcUrl").href = m.dataset_url; $("srcUrl").textContent = m.dataset_url;
   $("srcPub").textContent = m.publisher;
