@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Madad — NGO Operations Database (Pakistan)</title>
+<meta name="description" content="Find real humanitarian help in your district, from real OCHA Pakistan 5W data. For flood-affected people and coordinators.">
+<style>
+:root{
+  --ink:#101418; --muted:#4a5560; --line:#d9dee4; --bg:#f4f7f5;
+  --green:#0b7a3e; --green-d:#095f31; --blue:#0b5ed7; --amber:#b25e09; --red:#b3261e;
+  --card:#ffffff; --chip:#eef3f0; --radius:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:17px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 60px}
+/* ---------- header ---------- */
+.top{background:#0d2b1f;color:#fff;padding:22px 14px 16px}
+.top .wrap{padding-bottom:0}
+.top h1{margin:0 0 4px;font-size:26px;line-height:1.25}
+.top h1 .urdu{font-weight:400;opacity:.85}
+.top p{margin:6px 0 0;font-size:15px;color:#cfe3d6}
+.snapshot{display:inline-block;margin-top:10px;background:#123d2a;border:1px solid #2c5f45;
+  color:#eaf5ee;font-size:13px;padding:6px 10px;border-radius:999px}
+/* ---------- tabs ---------- */
+.tabs{position:sticky;top:0;z-index:20;background:#0d2b1f;padding:0 14px 12px}
+.tabs .row{max-width:760px;margin:0 auto;display:flex;gap:10px}
+.tabbtn{flex:1;border:0;border-radius:12px;padding:16px 8px;font-size:18px;font-weight:700;
+  background:#173c2a;color:#bcd8c6;cursor:pointer;min-height:60px}
+.tabbtn[aria-selected="true"]{background:#fff;color:#0d2b1f}
+.tabbtn:focus-visible{outline:3px solid #ffd54a;outline-offset:2px}
+/* ---------- sections / cards ---------- */
+section.view{padding-top:18px}
+h2{font-size:22px;margin:6px 0 10px}
+h3{font-size:18px;margin:18px 0 8px}
+.lead{color:var(--muted);font-size:16px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin:12px 0}
+.stepnum{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:50%;background:var(--green);color:#fff;font-weight:800;margin-right:8px}
+/* ---------- inputs ---------- */
+label.lbl{display:block;font-weight:700;margin:14px 0 6px;font-size:18px}
+input[type=text],select{width:100%;font-size:18px;padding:14px;border:2px solid var(--line);
+  border-radius:12px;background:#fff;color:var(--ink);min-height:58px}
+input[type=text]:focus,select:focus{border-color:var(--green);outline:3px solid #bfe6cd}
+.hint{font-size:14px;color:var(--muted);margin:6px 0 0}
+.btn{display:inline-block;border:0;border-radius:12px;background:var(--green);color:#fff;
+  font-size:19px;font-weight:800;padding:16px 22px;cursor:pointer;min-height:60px;width:100%;margin-top:12px}
+.btn:hover{background:var(--green-d)}
+.btn:focus-visible{outline:3px solid #ffd54a;outline-offset:2px}
+.btn.secondary{background:#fff;color:var(--green);border:2px solid var(--green)}
+.btn.blue{background:var(--blue)}
+.suggest{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+.suggest button{border:2px solid var(--line);background:#fff;border-radius:999px;
+  padding:10px 14px;font-size:16px;cursor:pointer;min-height:48px}
+/* ---------- need buttons ---------- */
+.needs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.need{border:2px solid var(--line);background:#fff;border-radius:var(--radius);
+  padding:16px 10px;font-size:18px;font-weight:700;cursor:pointer;min-height:84px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.need .ic{font-size:30px}
+.need[aria-pressed="true"]{border-color:var(--green);background:#e7f4ec;box-shadow:0 0 0 2px var(--green)}
+.need:focus-visible{outline:3px solid #ffd54a;outline-offset:2px}
+/* ---------- result cards ---------- */
+.org{border-left:6px solid var(--green)}
+.org h3{margin:0 0 4px;font-size:20px}
+.sectorchip{display:inline-block;background:var(--chip);border:1px solid var(--line);
+  border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700;margin:6px 6px 0 0}
+.st{display:inline-block;border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700;margin-top:6px}
+.st.Ongoing{background:#dff2e5;color:#0b5a2c}
+.st.Completed{background:#e8eaed;color:#3c4043}
+.st.Planned{background:#dceaff;color:#0b3fa0}
+.st.Unknown{background:#f3e8e8;color:#6b3a1e}
+.org .meta{font-size:15px;color:var(--muted);margin-top:8px}
+.org .desc{margin:8px 0 0}
+.reached{font-weight:700;color:var(--green-d)}
+.empty{background:#fff8e8;border:2px dashed var(--amber);border-radius:var(--radius);padding:18px;margin:14px 0}
+.empty h3{margin-top:0;color:var(--amber)}
+/* ---------- coordinator ---------- */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center}
+.kpi .n{font-size:30px;font-weight:800;color:var(--green)}
+.kpi .l{font-size:14px;color:var(--muted)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.filters .full{grid-column:1/-1}
+.bar-row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.bar-row .bl{width:44%;font-size:14px;text-align:right;color:var(--ink)}
+.bar-track{flex:1;background:#e6ebe8;border-radius:6px;height:22px;position:relative;overflow:hidden}
+.bar-fill{background:var(--green);height:100%;border-radius:6px}
+.bar-row .bv{width:52px;font-size:14px;font-weight:700}
+.gap{background:#fff5f5;border:1px solid #e8b4b4;border-left:6px solid var(--red);border-radius:var(--radius);
+  padding:14px;margin:10px 0}
+.gap h4{margin:0 0 6px;font-size:17px;color:var(--red)}
+.gap p{margin:4px 0;font-size:15px}
+.gap .rec{background:#fff;border:1px dashed #d89a9a;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:15px}
+.distchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.distchips span{background:#f6e4e4;border-radius:999px;padding:4px 10px;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#eef3f0;position:sticky;top:0}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);margin:10px 0}
+/* ---------- source card ---------- */
+.source{background:#0d2b1f;color:#eaf5ee;border-radius:var(--radius);padding:18px;margin:22px 0}
+.source h3{color:#fff;margin-top:0}
+.source a{color:#9fe0b8;word-break:break-all}
+.source dl{margin:8px 0;font-size:14px}
+.source dt{font-weight:700;color:#bcd8c6;margin-top:8px}
+.source dd{margin:2px 0 0}
+.source .warn{background:#3a2c10;border:1px solid #8a6d2f;border-radius:10px;padding:10px 12px;
+  font-size:14px;margin-top:12px;color:#ffe6b3}
+footer{padding:20px 14px;text-align:center;color:var(--muted);font-size:14px}
+.loading{text-align:center;padding:40px 10px;color:var(--muted);font-size:18px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (min-width:640px){ .needs{grid-template-columns:repeat(3,1fr)} .kpis{grid-template-columns:repeat(4,1fr)} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>🤝 Madad <span class="urdu">(مدد)</span><br>NGO Operations Database</h1>
+    <p>Real humanitarian work in Pakistan — who is helping, where, and with what.
+       Pick your district and your need. Simple words, real data.</p>
+    <span class="snapshot" id="snapshotBadge">Loading data…</span>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Views">
+  <div class="row" role="tablist">
+    <button class="tabbtn" role="tab" id="tab-find" aria-selected="true" aria-controls="view-find">🔍<br>Find Help</button>
+    <button class="tabbtn" role="tab" id="tab-coord" aria-selected="false" aria-controls="view-coord">📊<br>Coordinator</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ================= FIND HELP ================= -->
+<section class="view" id="view-find" role="tabpanel" aria-labelledby="tab-find">
+  <h2><span class="stepnum">1</span>Your district</h2>
+  <label class="lbl" for="districtInput">Type your district name</label>
+  <input type="text" id="districtInput" list="districtList" placeholder="e.g. Multan, Swat, Sukkur…"
+         autocomplete="off" inputmode="search" aria-describedby="districtHint">
+  <datalist id="districtList"></datalist>
+  <p class="hint" id="districtHint">Small spelling mistakes are OK — we will find the closest match.</p>
+  <div class="suggest" id="districtSuggest" hidden></div>
+
+  <h2 style="margin-top:22px"><span class="stepnum">2</span>What do you need?</h2>
+  <div class="needs" id="needButtons" role="group" aria-label="Choose your need">
+    <button class="need" data-need="food" aria-pressed="false"><span class="ic">🍞</span>Food</button>
+    <button class="need" data-need="shelter" aria-pressed="false"><span class="ic">🏠</span>Shelter</button>
+    <button class="need" data-need="health" aria-pressed="false"><span class="ic">🏥</span>Health</button>
+    <button class="need" data-need="wash" aria-pressed="false"><span class="ic">💧</span>Water / WASH</button>
+    <button class="need" data-need="education" aria-pressed="false"><span class="ic">📚</span>Education</button>
+    <button class="need" data-need="protection" aria-pressed="false"><span class="ic">🛡️</span>Protection</button>
+  </div>
+
+  <button class="btn" id="findBtn">Find help near me →</button>
+
+  <div id="findResults" aria-live="polite"></div>
+</section>
+
+<!-- ================= COORDINATOR ================= -->
+<section class="view" id="view-coord" role="tabpanel" aria-labelledby="tab-coord" hidden>
+  <h2>Coordinator dashboard</h2>
+  <p class="lead">Coverage picture for NGOs, government and donors — built from the same real
+     OCHA Pakistan 5W records. Filter, spot gaps, export.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">Filters</h3>
+    <div class="filters">
+      <div><label class="lbl" for="fProv">Province</label><select id="fProv"></select></div>
+      <div><label class="lbl" for="fSector">Sector</label><select id="fSector"></select></div>
+      <div><label class="lbl" for="fOrg">Organization</label><select id="fOrg"></select></div>
+      <div><label class="lbl" for="fStatus">Status</label><select id="fStatus"></select></div>
+      <div class="full"><label class="lbl" for="fResp">Response</label><select id="fResp"></select></div>
+    </div>
+    <button class="btn secondary" id="clearFilters" style="width:auto;padding:12px 20px;min-height:52px">Clear filters</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Organizations by sector</h3>
+    <p class="lead">How many <b>different organizations</b> work in each sector.</p>
+    <div id="sectorBars"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Top districts by organization count</h3>
+    <p class="lead">Districts with the most organizations present (top 12).</p>
+    <div id="districtBars"></div>
+  </div>
+
+  <h2 style="margin-top:24px">⚠️ Coverage gaps</h2>
+  <p class="lead">Computed from the records. A gap can mean no one is there — or that work was
+     not reported. Both are worth checking.</p>
+  <div id="gaps"></div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Organization activity summary</h3>
+    <div class="tblwrap"><table id="orgTable" aria-label="Organization activity summary">
+      <thead><tr><th>Organization</th><th>Activities</th><th>Districts</th><th>Sectors</th><th>People reached</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+
+  <button class="btn blue" id="exportBtn">⬇ Export filtered results as CSV</button>
+  <p class="hint">Downloads exactly what you see after filters — open it in Excel or Google Sheets.</p>
+</section>
+
+<!-- ================= DATA SOURCE ================= -->
+<div class="source" id="sourceCard">
+  <h3>📦 Data source (read this)</h3>
+  <dl>
+    <dt>Dataset</dt><dd id="srcTitle">—</dd>
+    <dt>Link</dt><dd><a id="srcUrl" href="#" rel="noopener">—</a></dd>
+    <dt>Publisher</dt><dd id="srcPub">—</dd>
+    <dt>License</dt><dd><a id="srcLic" href="#" rel="noopener">—</a></dd>
+    <dt>Snapshot date</dt><dd id="srcSnap">—</dd>
+    <dt>Downloaded</dt><dd id="srcDl">—</dd>
+    <dt>Size</dt><dd id="srcRows">—</dd>
+  </dl>
+  <div class="warn" id="srcNote">⚠️ <b>Data snapshot — not live.</b> The operational picture changes daily.
+    Records are self-reported by organizations through humanitarian clusters; gaps may reflect
+    under-reporting, not absence of need. Always confirm with local authorities before acting.</div>
+</div>
+
+</div>
+
+<footer>
+  Madad — NGO Operations Database · built for flood-affected people and coordinators in Pakistan ·
+  data: OCHA Pakistan via HDX
+</footer>
+
+<script>
+"use strict";
+/* ============================================================
+   Madad — NGO Operations Database
+   Real data: OCHA Pakistan 5W via HDX (snapshot, see data/data.json meta)
+   ============================================================ */
+const NEEDS = {
+  food:      {label:"Food",        icon:"🍞", sectors:["Food Security and Livelihood"]},
+  shelter:   {label:"Shelter",     icon:"🏠", sectors:["Shelter/NFI"]},
+  health:    {label:"Health",      icon:"🏥", sectors:["Health","Health - SRH"]},
+  wash:      {label:"Water / WASH",icon:"💧", sectors:["WASH"]},
+  education: {label:"Education",   icon:"📚", sectors:["Education"]},
+  protection:{label:"Protection",  icon:"🛡️", sectors:["Protection","Protection - GBV","Protection - Child Protection"]}
+};
+const SECTOR_PLAIN = {
+  "Food Security and Livelihood":"Food & livelihood",
+  "Shelter/NFI":"Shelter",
+  "Health":"Health",
+  "Health - SRH":"Women's health",
+  "WASH":"Clean water & hygiene",
+  "Education":"Education",
+  "Protection":"Protection",
+  "Protection - GBV":"Women's safety",
+  "Protection - Child Protection":"Child safety",
+  "Nutrition":"Nutrition",
+  "Multipurpose Cash":"Cash help",
+  "DRR":"Disaster preparedness"
+};
+let DB = null;            // {meta, orgs, districts, sectors, rows}
+let selNeed = null, selDistrict = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+const fmtN = n => Number(n||0).toLocaleString("en-US");
+
+/* ---------- tabs ---------- */
+function showTab(which){
+  const find = which==="find";
+  $("tab-find").setAttribute("aria-selected", find);
+  $("tab-coord").setAttribute("aria-selected", !find);
+  $("view-find").hidden = !find;
+  $("view-coord").hidden = find;
+  if(!find && DB) renderCoordinator();
+}
+$("tab-find").addEventListener("click",()=>showTab("find"));
+$("tab-coord").addEventListener("click",()=>showTab("coord"));
+
+/* ---------- load data ---------- */
+fetch("data/data.json").then(r=>{
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}).then(db=>{
+  DB = db;
+  initApp();
+}).catch(err=>{
+  document.querySelector(".wrap").innerHTML =
+    '<div class="empty"><h3>Could not load the data file</h3><p>Please check your internet connection and reload. ('+esc(err.message)+')</p></div>';
+});
+
+function initApp(){
+  const m = DB.meta;
+  $("snapshotBadge").textContent = "📦 Data snapshot · "+m.snapshot_date+" · OCHA Pakistan via HDX — not live";
+  $("srcTitle").textContent = m.dataset_title;
+  $("srcUrl").href = m.dataset_url; $("srcUrl").textContent = m.dataset_url;
+  $("srcPub").textContent = m.publisher;
+  $("srcLic").href = m.license_url; $("srcLic").textContent = m.license;
+  $("srcSnap").textContent = m.snapshot_date + " (resource file "+m.resource_file+")";
+  $("srcDl").textContent = m.downloaded_date;
+  $("srcRows").textContent = fmtN(m.raw_rows)+" raw records → "+fmtN(m.unique_activities)+
+    " unique activities · "+fmtN(m.org_count)+" organizations · "+m.district_count+" districts";
+
+  // district datalist
+  const dl = $("districtList");
+  DB.districts.forEach(d=>{
+    const o = document.createElement("option");
+    o.value = d.dist+" ("+d.prov+")";
+    dl.appendChild(o);
+  });
+
+  // need buttons
+  document.querySelectorAll("#needButtons .need").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#needButtons .need").forEach(x=>x.setAttribute("aria-pressed","false"));
+      b.setAttribute("aria-pressed","true");
+      selNeed = b.dataset.need;
+    });
+  });
+  $("findBtn").addEventListener("click", findHelp);
+  $("districtInput").addEventListener("input", suggestDistricts);
+
+  // coordinator filters
+  fillSelect($("fProv"), ["All provinces"].concat([...new Set(DB.districts.map(d=>d.prov))].sort()));
+  fillSelect($("fSector"), ["All sectors"].concat(DB.sectors));
+  fillSelect($("fOrg"), ["All organizations"].concat(DB.orgs));
+  fillSelect($("fStatus"), ["All statuses","Ongoing","Completed","Planned","Unknown"]);
+  fillSelect($("fResp"), ["All responses"].concat([...new Set(DB.rows.map(r=>r.resp).filter(Boolean))].sort()));
+  ["fProv","fSector","fOrg","fStatus","fResp"].forEach(id=>$(id).addEventListener("change",renderCoordinator));
+  $("clearFilters").addEventListener("click",()=>{
+    $("fProv").selectedIndex=0;$("fSector").selectedIndex=0;$("fOrg").selectedIndex=0;
+    $("fStatus").selectedIndex=0;$("fResp").selectedIndex=0;renderCoordinator();
+  });
+  $("exportBtn").addEventListener("click",exportCSV);
+}
+function fillSelect(sel, items){
+  sel.innerHTML = items.map(i=>'<option>'+esc(i)+'</option>').join("");
+}
+
+/* ---------- district search (tolerant) ---------- */
+function findDistrictMatch(q){
+  const nq = norm(q);
+  if(!nq) return null;
+  // exact / contains match on normalized "district province"
+  let best=null;
+  for(const d of DB.districts){
+    const key = norm(d.dist+" "+d.prov);
+    if(key===nq || norm(d.dist)===nq){ return {d, exact:true}; }
+    if(key.startsWith(nq) || norm(d.dist).startsWith(nq)){ best = best||{d, exact:false}; }
+  }
+  if(best) return best;
+  for(const d of DB.districts){
+    if(norm(d.dist+" "+d.prov).includes(nq)){ return {d, exact:false}; }
+  }
+  return null;
+}
+function suggestDistricts(){
+  const q = $("districtInput").value;
+  const box = $("districtSuggest");
+  if(norm(q).length < 2){ box.hidden = true; return; }
+  const hits = DB.districts.filter(d=>norm(d.dist+" "+d.prov).includes(norm(q))).slice(0,6);
+  if(!hits.length){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = hits.map(d=>'<button type="button" data-d="'+esc(d.dist)+'" data-p="'+esc(d.prov)+'">'+esc(d.dist)+' <span style="color:var(--muted)">('+esc(d.prov)+')</span></button>').join("");
+  box.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    $("districtInput").value = b.dataset.d+" ("+b.dataset.p+")";
+    box.hidden = true;
+  }));
+}
+/* ---------- FIND HELP ---------- */
+function statusWord(s){
+  return s==="Ongoing"?"Working now":(s==="Completed"?"Finished":(s==="Planned"?"Coming soon":"Unknown"));
+}
+function orgCard(r){
+  const reached = r.inds>0
+    ? '<span class="reached">~'+fmtN(r.inds)+' people reached</span>'
+    : 'People reached: <b>not reported</b>';
+  const loc = r.tehsils.length ? "Area: "+esc(r.tehsils.join(", ")) : "Area: whole district";
+  const when = r.start ? (" · "+esc(r.start)+(r.end&&r.end!==r.start?" → "+esc(r.end):"")) : "";
+  return '<article class="card org">'+
+    '<h3>'+esc(r.org)+'</h3>'+
+    '<span class="sectorchip">'+esc(SECTOR_PLAIN[r.sector]||r.sector)+'</span>'+
+    '<span class="st '+esc(r.status)+'">'+esc(statusWord(r.status))+'</span>'+
+    '<p class="desc"><b>'+esc(r.act)+'</b>'+(r.desc?' — '+esc(r.desc):'')+'</p>'+
+    '<p class="meta">'+esc(r.dist)+', '+esc(r.prov)+' · '+loc+when+'<br>'+reached+'</p>'+
+    '</article>';
+}
+function findHelp(){
+  const box = $("findResults");
+  const m = findDistrictMatch($("districtInput").value);
+  if(!m){
+    box.innerHTML = '<div class="empty"><h3>We could not find that district</h3>'+
+      '<p>Check the spelling, or pick a name from the list that appears while you type.</p></div>';
+    return;
+  }
+  selDistrict = m.d;
+  $("districtInput").value = selDistrict.dist+" ("+selDistrict.prov+")";
+  if(!selNeed){
+    box.innerHTML = '<div class="empty"><h3>One more step</h3><p>Please choose what you need above (Food, Shelter, Health…), then press <b>Find help near me</b>.</p></div>';
+    return;
+  }
+  const need = NEEDS[selNeed];
+  const hits = DB.rows.filter(r=>r.dist===selDistrict.dist && r.prov===selDistrict.prov && need.sectors.includes(r.sector));
+  // sort: ongoing first, then by people reached
+  hits.sort((a,b)=>(b.status==="Ongoing")-(a.status==="Ongoing") || b.inds-a.inds);
+
+  if(!hits.length){
+    const nearby = DB.districts.filter(d=>d.prov===selDistrict.prov && d.dist!==selDistrict.dist).slice(0,5);
+    box.innerHTML = '<div class="empty"><h3>No recorded activity for '+esc(need.label.toLowerCase())+' in '+esc(selDistrict.dist)+'</h3>'+
+      '<p>This is what our dataset shows — it does <b>not</b> mean no one can help. The data is a snapshot from '+
+      esc(DB.meta.snapshot_date)+' and reporting is incomplete.</p>'+
+      '<p><b>What you can do:</b></p><ul>'+
+      '<li>Try a nearby district: '+nearby.map(d=>esc(d.dist)).join(", ")+'</li>'+
+      '<li>Contact the PDMA (Provincial Disaster Management Authority) helpline or your District administration</li>'+
+      '<li>Ask at your nearest government relief camp</li></ul></div>';
+    return;
+  }
+  const orgsN = new Set(hits.map(r=>r.org)).size;
+  let html = '<h3 style="margin-top:20px">'+need.icon+' '+hits.length+' help record'+(hits.length>1?'s':'')+
+    ' · '+orgsN+' organization'+(orgsN>1?'s':'')+' in '+esc(selDistrict.dist)+'</h3>'+
+    '<p class="lead">Showing <b>'+esc(need.label)+'</b> help ('+need.sectors.map(s=>esc(SECTOR_PLAIN[s]||s)).join(", ")+
+    '). "Working now" means the work was ongoing when the data was recorded.</p>';
+  html += hits.map(orgCard).join("");
+  html += '<div class="card"><b>Need something else?</b> Pick another need above and press the button again.</div>';
+  box.innerHTML = html;
+  box.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* ---------- COORDINATOR ---------- */
+function filteredRows(){
+  const p=$("fProv").value, s=$("fSector").value, o=$("fOrg").value, st=$("fStatus").value, rp=$("fResp").value;
+  return DB.rows.filter(r=>
+    (p==="All provinces"||r.prov===p) &&
+    (s==="All sectors"||r.sector===s) &&
+    (o==="All organizations"||r.org===o) &&
+    (st==="All statuses"||r.status===st) &&
+    (rp==="All responses"||r.resp===rp));
+}
+function barChart(el, items, maxN){
+  const max = items.length?items[0][1]:1;
+  el.innerHTML = items.slice(0,maxN).map(([label,val])=>{
+    const w = Math.max(2, Math.round(val/max*100));
+    return '<div class="bar-row"><div class="bl">'+esc(label)+'</div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+w+'%"></div></div>'+
+      '<div class="bv">'+fmtN(val)+'</div></div>';
+  }).join("") || '<p class="lead">No data for these filters.</p>';
+}
+function renderCoordinator(){
+  const rows = filteredRows();
+
+  // KPIs
+  const orgs = new Set(rows.map(r=>r.org));
+  const dists = new Set(rows.map(r=>r.prov+"|"+r.dist));
+  const people = rows.reduce((a,r)=>a+r.inds,0);
+  $("kpis").innerHTML =
+    kpi(fmtN(rows.length),"Activities") + kpi(fmtN(orgs.size),"Organizations") +
+    kpi(fmtN(dists.size),"Districts") + kpi(fmtN(people),"People reached");
+  function kpi(n,l){ return '<div class="kpi"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
+
+  // orgs by sector
+  const bySector = {};
+  rows.forEach(r=>{ (bySector[r.sector]=bySector[r.sector]||new Set()).add(r.org); });
+  barChart($("sectorBars"), Object.entries(bySector).map(([k,v])=>[SECTOR_PLAIN[k]||k, v.size]).sort((a,b)=>b[1]-a[1]), 12);
+
+  // top districts by org count
+  const byDist = {};
+  rows.forEach(r=>{ const k=r.dist+" ("+r.prov+")"; (byDist[k]=byDist[k]||new Set()).add(r.org); });
+  barChart($("districtBars"), Object.entries(byDist).map(([k,v])=>[k, v.size]).sort((a,b)=>b[1]-a[1]), 12);
+
+  renderGaps(rows);
+  renderOrgTable(rows);
+}
+
+function renderGaps(rows){
+  // district -> need -> set of orgs
+  const needKeys = Object.keys(NEEDS);
+  const dneed = {};   // "prov|dist" -> {need: Set(orgs)}
+  const dorgs = {};   // "prov|dist" -> Set(orgs)
+  rows.forEach(r=>{
+    const dk = r.prov+"|"+r.dist;
+    dorgs[dk]=dorgs[dk]||new Set(); dorgs[dk].add(r.org);
+    for(const nk of needKeys){
+      if(NEEDS[nk].sectors.includes(r.sector)){
+        dneed[dk]=dneed[dk]||{};
+        dneed[dk][nk]=dneed[dk][nk]||new Set();
+        dneed[dk][nk].add(r.org);
+      }
+    }
+  });
+  const distName = dk => { const [p,d]=dk.split("|"); return {p,d}; };
+
+  let html = "";
+  // 1) needs with most zero-coverage districts
+  needKeys.forEach(nk=>{
+    const zero = Object.keys(dorgs).filter(dk=>!(dneed[dk]&&dneed[dk][nk]&&dneed[dk][nk].size));
+    if(!zero.length) return;
+    const shown = zero.slice(0,10).map(dk=>distName(dk).d);
+    html += '<div class="gap"><h4>'+NEEDS[nk].icon+' '+NEEDS[nk].label+': no recorded actors in '+zero.length+' district'+(zero.length>1?'s':'')+'</h4>'+
+      '<p>Districts with <b>zero</b> recorded '+NEEDS[nk].label.toLowerCase()+' organizations:</p>'+
+      '<div class="distchips">'+shown.map(esc).map(s=>'<span>'+s+'</span>').join("")+
+      (zero.length>10?'<span>+'+(zero.length-10)+' more</span>':'')+'</div>'+
+      '<div class="rec">💡 <b>Recommendation:</b> treat '+(zero.length>10?shown.slice(0,3).join(", "):shown.join(", "))+
+      ' as priority areas for '+NEEDS[nk].label.toLowerCase()+' deployment — verify on the ground first, as work may exist but be unreported.</div></div>';
+  });
+  // 2) districts with very few organizations overall
+  const thin = Object.entries(dorgs).map(([dk,s])=>({dk,n:s.size})).filter(x=>x.n<=2).sort((a,b)=>a.n-b.n);
+  if(thin.length){
+    const shown = thin.slice(0,10);
+    html += '<div class="gap"><h4>🏚️ '+thin.length+' districts have only 1–2 recorded organizations</h4>'+
+      '<div class="distchips">'+shown.map(x=>'<span>'+esc(distName(x.dk).d)+' ('+x.n+')</span>').join("")+
+      (thin.length>10?'<span>+'+(thin.length-10)+' more</span>':'')+'</div>'+
+      '<div class="rec">💡 <b>Recommendation:</b> these districts are the thinnest-covered in the whole dataset. '+
+      'Consider multi-sector assessments here before new deployments elsewhere.</div></div>';
+  }
+  if(!html) html = '<div class="card"><b>No gaps found</b> for the current filters — every district has at least one recorded organization per need.</div>';
+  $("gaps").innerHTML = html;
+}
+
+function renderOrgTable(rows){
+  const agg = {};
+  rows.forEach(r=>{
+    const a = agg[r.org]=agg[r.org]||{org:r.org,acts:0,dists:new Set(),secs:new Set(),ppl:0};
+    a.acts++; a.dists.add(r.dist); a.secs.add(r.sector); a.ppl+=r.inds;
+  });
+  const list = Object.values(agg).sort((a,b)=>b.acts-a.acts).slice(0,60);
+  $("orgTable").querySelector("tbody").innerHTML = list.map(a=>
+    '<tr><td><b>'+esc(a.org)+'</b></td><td>'+fmtN(a.acts)+'</td><td>'+a.dists.size+
+    '</td><td>'+a.secs.size+'</td><td>'+fmtN(a.ppl)+'</td></tr>').join("") ||
+    '<tr><td colspan="5">No data for these filters.</td></tr>';
+}
+
+function exportCSV(){
+  const rows = filteredRows();
+  const head = ["Organization","Province","District","Tehsils","Sector","Activity","Description","Modality","People reached","Households","Start date","End date","Status","Response"];
+  const q = v => '"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const lines = [head.map(q).join(",")];
+  rows.forEach(r=>lines.push([r.org,r.prov,r.dist,r.tehsils.join("; "),r.sector,r.act,r.desc,r.mods.join("; "),
+    r.inds,r.hh,r.start,r.end,r.status,r.resp].map(q).join(",")));
+  const blob = new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ngo-operations-filtered.csv";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+}
+</script>
+</body>
+</html>
